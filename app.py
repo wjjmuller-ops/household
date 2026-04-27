@@ -11,6 +11,17 @@ app.secret_key = "change-this-secret-key"
 DATABASE = Path("household.db")
 
 
+
+@app.template_filter("date_dmy")
+def date_dmy(value):
+    if not value:
+        return ""
+    try:
+        return datetime.strptime(str(value), "%Y-%m-%d").strftime("%d/%m/%Y")
+    except Exception:
+        return str(value)
+
+
 def get_db():
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row

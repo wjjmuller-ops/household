@@ -22,7 +22,7 @@
             {% for event in results.events %}
                 <div class="border-bottom py-2 compact-list-item">
                     <strong><a href="{{ url_for('event_detail', event_id=event.id) }}">{{ event.title }}</a></strong><br>
-                    <span class="small-muted">{{ event.event_date }} {{ event.event_time or "" }} · {{ event.user_name or "Unknown" }}</span>
+                    <span class="small-muted">{{ event.event_date|date_dmy }} {{ event.event_time or "" }} · {{ event.user_name or "Unknown" }}</span>
                     {% if event.location %}<br><span class="small-muted">{{ event.location }}</span>{% endif %}
                 </div>
             {% else %}
@@ -53,7 +53,7 @@
                 <div class="border-bottom py-2 compact-list-item">
                     <strong>{{ todo.task }}</strong><br>
                     <span class="small-muted">{{ todo.status or "Pending" }} · {{ todo.priority }} · {{ todo.responsible_name or "Unassigned" }}</span>
-                    {% if todo.due_date %}<br><span class="small-muted">Due: {{ todo.due_date }}</span>{% endif %}
+                    {% if todo.due_date %}<br><span class="small-muted">Due: {{ todo.due_date|date_dmy }}</span>{% endif %}
                 </div>
             {% else %}
                 <p class="text-muted">No tasks found.</p>

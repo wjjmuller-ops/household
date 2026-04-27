@@ -44,7 +44,7 @@
                             <h5 class="mb-1">
                                 <a href="{{ url_for('event_detail', event_id=event.id) }}">{{ event.title }}</a>
                             </h5>
-                            <div class="small-muted">{{ event.event_date }} {{ event.event_time or "" }}</div>
+                            <div class="small-muted">{{ event.event_date|date_dmy }} {{ event.event_time or "" }}</div>
                             {% if event.location %}<div class="small-muted">{{ event.location }}</div>{% endif %}
                             <span class="badge badge-soft">By {{ event.user_name or "Unknown" }}</span>
                             <span class="badge text-bg-secondary">{{ event.comment_count }} comments</span>

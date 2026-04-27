@@ -734,3 +734,19 @@ body.dog-theme {
         padding: .75rem;
     }
 }
+
+
+/* v9 calendar-first dashboard */
+.theme-calendar-card.mb-3 {
+    margin-top: 0;
+}
+
+.dashboard-hero {
+    min-height: 210px;
+}
+
+@media (max-width: 768px) {
+    .dashboard-hero {
+        min-height: 130px;
+    }
+}

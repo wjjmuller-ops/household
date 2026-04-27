@@ -160,3 +160,12 @@ Added:
 - Quick dashboard tiles
 - Themed calendar cards
 - Mobile responsive styling
+
+
+## v9 Calendar Top + Date Format
+
+Changes:
+- Removed the four dashboard shortcut cards
+- Placed calendar directly below Notice Board
+- Changed displayed dates to dd/mm/yyyy
+- Kept HTML date inputs in yyyy-mm-dd for browser compatibility

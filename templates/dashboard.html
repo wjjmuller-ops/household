@@ -6,7 +6,7 @@
         <p class="hero-subtitle">Shared calendar, shopping, tasks and notices for the household.</p>
     </div>
     <div class="hero-date-card">
-        <strong>{{ today.strftime('%d %b %Y') }}</strong>
+        <strong>{{ today.strftime('%d/%m/%Y') }}</strong>
         <span>{{ today.strftime('%A') }}</span>
     </div>
 </div>
@@ -44,98 +44,70 @@
     </div>
 </div>
 
-<div class="quick-tile-grid mb-3">
-    <a href="{{ url_for('calendar_page') }}" class="quick-tile">
-        <div class="tile-icon">📅</div>
-        <strong>Calendar</strong>
-        <span>View events and schedule</span>
-    </a>
-    <a href="{{ url_for('shopping_page') }}" class="quick-tile">
-        <div class="tile-icon">🛒</div>
-        <strong>Shopping List</strong>
-        <span>Manage shopping items</span>
-    </a>
-    <a href="{{ url_for('todo_page') }}" class="quick-tile">
-        <div class="tile-icon">✅</div>
-        <strong>To-do List</strong>
-        <span>Stay on top of tasks</span>
-    </a>
-    <a href="{{ url_for('search_page') }}" class="quick-tile">
-        <div class="tile-icon">🔎</div>
-        <strong>Search</strong>
-        <span>Find anything quickly</span>
-    </a>
+<div id="mainCalendarCard" class="theme-calendar-card mb-3">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+        <h4 class="mb-0">📆 Household Calendar</h4>
+        <div class="btn-group">
+            <a id="prevMonthLink" class="btn btn-outline-warning" href="{{ url_for('dashboard', year=prev_year, month=prev_month) }}">‹</a>
+            <a class="btn btn-outline-light" href="{{ url_for('dashboard') }}">{{ month_name }} {{ year }}</a>
+            <a id="nextMonthLink" class="btn btn-outline-warning" href="{{ url_for('dashboard', year=next_year, month=next_month) }}">›</a>
+        </div>
+    </div>
+
+    <div class="calendar-grid mb-2">
+        <div class="calendar-head">Mon</div>
+        <div class="calendar-head">Tue</div>
+        <div class="calendar-head">Wed</div>
+        <div class="calendar-head">Thu</div>
+        <div class="calendar-head">Fri</div>
+        <div class="calendar-head">Sat</div>
+        <div class="calendar-head">Sun</div>
+    </div>
+
+    <div class="calendar-grid">
+        {% for week in calendar_weeks %}
+            {% for day in week %}
+                {% set day_key = day.strftime('%Y-%m-%d') %}
+                <a class="calendar-day theme-calendar-day
+                    {% if day.month != month %}outside-month{% endif %}
+                    {% if selected_date == day_key %}selected{% endif %}
+                    {% if day == today %}today{% endif %}"
+                   href="{{ url_for('dashboard', year=year, month=month, date=day_key) }}">
+                    <div class="d-flex justify-content-between">
+                        <strong>{{ day.day }}</strong>
+                        {% if day == today %}<span class="badge text-bg-warning">Today</span>{% endif %}
+                    </div>
+
+                    {% for event in events_by_date.get(day_key, [])[:3] %}
+                        <span class="calendar-event-pill">{{ event.event_time or "" }} {{ event.title }}</span>
+                    {% endfor %}
+
+                    {% if events_by_date.get(day_key, [])|length > 3 %}
+                        <span class="small-muted">+{{ events_by_date.get(day_key, [])|length - 3 }} more</span>
+                    {% endif %}
+                </a>
+            {% endfor %}
+        {% endfor %}
+    </div>
+    <div class="swipe-note">← Swipe left or right to change month →</div>
 </div>
 
-<div class="row g-3 mb-3 dashboard-summary">
-    <div class="col-md-6">
+<div class="row g-3">
+    <div class="col-lg-8">
         <div class="theme-stat-card">
             <h5>Today</h5>
-            <div class="display-6">{{ today_events|length }}</div>
-            <span>Events today</span>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="theme-stat-card">
-            <h5>This Week</h5>
-            <div class="display-6">{{ week_events|length }}</div>
-            <span>Upcoming events</span>
-        </div>
-    </div>
-</div>
-
-<div class="row g-4">
-    <div class="col-xl-9 dashboard-calendar-column">
-        <div id="mainCalendarCard" class="theme-calendar-card">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-                <h4 class="mb-0">📆 Household Calendar</h4>
-                <div class="btn-group">
-                    <a id="prevMonthLink" class="btn btn-outline-warning" href="{{ url_for('dashboard', year=prev_year, month=prev_month) }}">‹</a>
-                    <a class="btn btn-outline-light" href="{{ url_for('dashboard') }}">{{ month_name }} {{ year }}</a>
-                    <a id="nextMonthLink" class="btn btn-outline-warning" href="{{ url_for('dashboard', year=next_year, month=next_month) }}">›</a>
+            {% for event in today_events %}
+                <div class="theme-list-row">
+                    <strong>{{ event.title }}</strong><br>
+                    <span class="small-muted">{{ event.event_time or "No time" }} · {{ event.user_name or "Unknown" }}</span>
                 </div>
-            </div>
-
-            <div class="calendar-grid mb-2">
-                <div class="calendar-head">Mon</div>
-                <div class="calendar-head">Tue</div>
-                <div class="calendar-head">Wed</div>
-                <div class="calendar-head">Thu</div>
-                <div class="calendar-head">Fri</div>
-                <div class="calendar-head">Sat</div>
-                <div class="calendar-head">Sun</div>
-            </div>
-
-            <div class="calendar-grid">
-                {% for week in calendar_weeks %}
-                    {% for day in week %}
-                        {% set day_key = day.strftime('%Y-%m-%d') %}
-                        <a class="calendar-day theme-calendar-day
-                            {% if day.month != month %}outside-month{% endif %}
-                            {% if selected_date == day_key %}selected{% endif %}
-                            {% if day == today %}today{% endif %}"
-                           href="{{ url_for('dashboard', year=year, month=month, date=day_key) }}">
-                            <div class="d-flex justify-content-between">
-                                <strong>{{ day.day }}</strong>
-                                {% if day == today %}<span class="badge text-bg-warning">Today</span>{% endif %}
-                            </div>
-
-                            {% for event in events_by_date.get(day_key, [])[:3] %}
-                                <span class="calendar-event-pill">{{ event.event_time or "" }} {{ event.title }}</span>
-                            {% endfor %}
-
-                            {% if events_by_date.get(day_key, [])|length > 3 %}
-                                <span class="small-muted">+{{ events_by_date.get(day_key, [])|length - 3 }} more</span>
-                            {% endif %}
-                        </a>
-                    {% endfor %}
-                {% endfor %}
-            </div>
-            <div class="swipe-note">← Swipe left or right to change month →</div>
+            {% else %}
+                <p class="text-light mb-0">No events today.</p>
+            {% endfor %}
         </div>
     </div>
 
-    <div class="col-xl-3 dashboard-side-column">
+    <div class="col-lg-4">
         <div class="theme-side-card">
             <div class="d-flex justify-content-between align-items-center mb-2">
                 <h4 class="mb-0">Selected Date</h4>
@@ -143,7 +115,7 @@
             </div>
 
             {% if selected_date %}
-                <p class="small-muted">{{ selected_date }}</p>
+                <p class="small-muted">{{ selected_date|date_dmy }}</p>
                 {% for event in selected_events %}
                     <div class="theme-list-row">
                         <strong><a href="{{ url_for('event_detail', event_id=event.id) }}">{{ event.title }}</a></strong><br>
