@@ -169,3 +169,20 @@ Changes:
 - Placed calendar directly below Notice Board
 - Changed displayed dates to dd/mm/yyyy
 - Kept HTML date inputs in yyyy-mm-dd for browser compatibility
+
+
+## v10 AJAX Calendar Swipe
+
+- Swiping left/right on the main calendar changes month in-place
+- No full page refresh
+- Page stays in the same scroll position
+- Previous/next calendar buttons also update in-place
+
+
+## v10.1 Login Screen Update
+
+- Added dog background to login screen
+- Removed visible default password hint from login page
+- Changed first default login:
+  - Username: Willem
+  - Password: 13424@wmu

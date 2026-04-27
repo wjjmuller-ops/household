@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, jsonify
 import sqlite3
 from pathlib import Path
 from datetime import datetime, date, timedelta
@@ -127,7 +127,7 @@ def init_db():
         conn.execute("""
             INSERT INTO users (name, password_hash, role, color, created_at)
             VALUES (?, ?, ?, ?, ?)
-        """, ("admin", generate_password_hash("admin123"), "admin", "#dc3545", now()))
+        """, ("Willem", generate_password_hash("13424@wmu"), "admin", "#ff9f1a", now()))
 
     conn.commit()
     conn.close()
@@ -753,6 +753,81 @@ def delete_todo(todo_id):
 def notifications_page():
     return render_template("notifications.html")
 
+
+
+@app.route("/api/calendar-month")
+@login_required
+def api_calendar_month():
+    try:
+        year = int(request.args.get("year", date.today().year))
+        month = int(request.args.get("month", date.today().month))
+    except ValueError:
+        year, month = date.today().year, date.today().month
+
+    if month < 1:
+        month = 12
+        year -= 1
+    if month > 12:
+        month = 1
+        year += 1
+
+    today = date.today()
+    month_start = f"{year:04d}-{month:02d}-01"
+    last_day = calendar.monthrange(year, month)[1]
+    month_end = f"{year:04d}-{month:02d}-{last_day:02d}"
+
+    conn = get_db()
+    events = conn.execute("""
+        SELECT e.*, u.name AS user_name, u.color AS user_color
+        FROM events e
+        LEFT JOIN users u ON e.created_by = u.id
+        WHERE e.event_date BETWEEN ? AND ?
+        ORDER BY e.event_date, e.event_time
+    """, (month_start, month_end)).fetchall()
+    conn.close()
+
+    events_by_date = {}
+    for event in events:
+        events_by_date.setdefault(event["event_date"], []).append(event)
+
+    calendar_weeks = calendar.Calendar(firstweekday=0).monthdatescalendar(year, month)
+
+    prev_month = month - 1
+    prev_year = year
+    next_month = month + 1
+    next_year = year
+    if prev_month < 1:
+        prev_month = 12
+        prev_year -= 1
+    if next_month > 12:
+        next_month = 1
+        next_year += 1
+
+    html = render_template(
+        "_calendar_month.html",
+        year=year,
+        month=month,
+        month_name=calendar.month_name[month],
+        calendar_weeks=calendar_weeks,
+        events_by_date=events_by_date,
+        selected_date=request.args.get("date"),
+        prev_month=prev_month,
+        prev_year=prev_year,
+        next_month=next_month,
+        next_year=next_year,
+        today=today
+    )
+
+    return jsonify({
+        "html": html,
+        "year": year,
+        "month": month,
+        "month_name": calendar.month_name[month],
+        "prev_year": prev_year,
+        "prev_month": prev_month,
+        "next_year": next_year,
+        "next_month": next_month
+    })
 
 @app.route("/api/notifications")
 @login_required

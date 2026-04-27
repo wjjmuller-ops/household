@@ -1,0 +1,45 @@
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+    <h4 class="mb-0">📆 Household Calendar</h4>
+    <div class="btn-group">
+        <button id="prevMonthLink" class="btn btn-outline-warning" type="button" data-year="{{ prev_year }}" data-month="{{ prev_month }}">‹</button>
+        <button class="btn btn-outline-light" type="button">{{ month_name }} {{ year }}</button>
+        <button id="nextMonthLink" class="btn btn-outline-warning" type="button" data-year="{{ next_year }}" data-month="{{ next_month }}">›</button>
+    </div>
+</div>
+
+<div class="calendar-grid mb-2">
+    <div class="calendar-head">Mon</div>
+    <div class="calendar-head">Tue</div>
+    <div class="calendar-head">Wed</div>
+    <div class="calendar-head">Thu</div>
+    <div class="calendar-head">Fri</div>
+    <div class="calendar-head">Sat</div>
+    <div class="calendar-head">Sun</div>
+</div>
+
+<div class="calendar-grid">
+    {% for week in calendar_weeks %}
+        {% for day in week %}
+            {% set day_key = day.strftime('%Y-%m-%d') %}
+            <a class="calendar-day theme-calendar-day
+                {% if day.month != month %}outside-month{% endif %}
+                {% if selected_date == day_key %}selected{% endif %}
+                {% if day == today %}today{% endif %}"
+               href="{{ url_for('dashboard', year=year, month=month, date=day_key) }}">
+                <div class="d-flex justify-content-between">
+                    <strong>{{ day.day }}</strong>
+                    {% if day == today %}<span class="badge text-bg-warning">Today</span>{% endif %}
+                </div>
+
+                {% for event in events_by_date.get(day_key, [])[:3] %}
+                    <span class="calendar-event-pill">{{ event.event_time or "" }} {{ event.title }}</span>
+                {% endfor %}
+
+                {% if events_by_date.get(day_key, [])|length > 3 %}
+                    <span class="small-muted">+{{ events_by_date.get(day_key, [])|length - 3 }} more</span>
+                {% endif %}
+            </a>
+        {% endfor %}
+    {% endfor %}
+</div>
+<div class="swipe-note">← Swipe left or right to change month →</div>

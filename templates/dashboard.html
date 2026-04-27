@@ -44,52 +44,8 @@
     </div>
 </div>
 
-<div id="mainCalendarCard" class="theme-calendar-card mb-3">
-    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
-        <h4 class="mb-0">📆 Household Calendar</h4>
-        <div class="btn-group">
-            <a id="prevMonthLink" class="btn btn-outline-warning" href="{{ url_for('dashboard', year=prev_year, month=prev_month) }}">‹</a>
-            <a class="btn btn-outline-light" href="{{ url_for('dashboard') }}">{{ month_name }} {{ year }}</a>
-            <a id="nextMonthLink" class="btn btn-outline-warning" href="{{ url_for('dashboard', year=next_year, month=next_month) }}">›</a>
-        </div>
-    </div>
-
-    <div class="calendar-grid mb-2">
-        <div class="calendar-head">Mon</div>
-        <div class="calendar-head">Tue</div>
-        <div class="calendar-head">Wed</div>
-        <div class="calendar-head">Thu</div>
-        <div class="calendar-head">Fri</div>
-        <div class="calendar-head">Sat</div>
-        <div class="calendar-head">Sun</div>
-    </div>
-
-    <div class="calendar-grid">
-        {% for week in calendar_weeks %}
-            {% for day in week %}
-                {% set day_key = day.strftime('%Y-%m-%d') %}
-                <a class="calendar-day theme-calendar-day
-                    {% if day.month != month %}outside-month{% endif %}
-                    {% if selected_date == day_key %}selected{% endif %}
-                    {% if day == today %}today{% endif %}"
-                   href="{{ url_for('dashboard', year=year, month=month, date=day_key) }}">
-                    <div class="d-flex justify-content-between">
-                        <strong>{{ day.day }}</strong>
-                        {% if day == today %}<span class="badge text-bg-warning">Today</span>{% endif %}
-                    </div>
-
-                    {% for event in events_by_date.get(day_key, [])[:3] %}
-                        <span class="calendar-event-pill">{{ event.event_time or "" }} {{ event.title }}</span>
-                    {% endfor %}
-
-                    {% if events_by_date.get(day_key, [])|length > 3 %}
-                        <span class="small-muted">+{{ events_by_date.get(day_key, [])|length - 3 }} more</span>
-                    {% endif %}
-                </a>
-            {% endfor %}
-        {% endfor %}
-    </div>
-    <div class="swipe-note">← Swipe left or right to change month →</div>
+<div id="mainCalendarCard" class="theme-calendar-card mb-3" data-year="{{ year }}" data-month="{{ month }}">
+    {% include "_calendar_month.html" %}
 </div>
 
 <div class="row g-3">
@@ -135,12 +91,56 @@
 <script>
 (function () {
     const calendar = document.getElementById("mainCalendarCard");
-    const prevLink = document.getElementById("prevMonthLink");
-    const nextLink = document.getElementById("nextMonthLink");
-    if (!calendar || !prevLink || !nextLink) return;
+    if (!calendar) return;
 
     let startX = 0;
     let startY = 0;
+    let isLoading = false;
+
+    async function loadMonth(year, month) {
+        if (isLoading) return;
+        isLoading = true;
+        calendar.classList.add("calendar-loading");
+
+        try {
+            const response = await fetch(`/api/calendar-month?year=${year}&month=${month}`);
+            const data = await response.json();
+
+            calendar.innerHTML = data.html;
+            calendar.dataset.year = data.year;
+            calendar.dataset.month = data.month;
+
+            const url = new URL(window.location.href);
+            url.searchParams.set("year", data.year);
+            url.searchParams.set("month", data.month);
+            url.searchParams.delete("date");
+            history.replaceState({}, "", url);
+
+            attachButtons();
+        } catch (error) {
+            console.log("Calendar month load failed", error);
+        } finally {
+            calendar.classList.remove("calendar-loading");
+            isLoading = false;
+        }
+    }
+
+    function attachButtons() {
+        const prev = document.getElementById("prevMonthLink");
+        const next = document.getElementById("nextMonthLink");
+
+        if (prev) {
+            prev.addEventListener("click", function () {
+                loadMonth(this.dataset.year, this.dataset.month);
+            });
+        }
+
+        if (next) {
+            next.addEventListener("click", function () {
+                loadMonth(this.dataset.year, this.dataset.month);
+            });
+        }
+    }
 
     calendar.addEventListener("touchstart", function (event) {
         if (!event.touches.length) return;
@@ -158,12 +158,17 @@
 
         if (Math.abs(diffX) < 60 || Math.abs(diffX) < Math.abs(diffY)) return;
 
-        if (diffX < 0) {
-            window.location.href = nextLink.href;
-        } else {
-            window.location.href = prevLink.href;
+        const prev = document.getElementById("prevMonthLink");
+        const next = document.getElementById("nextMonthLink");
+
+        if (diffX < 0 && next) {
+            loadMonth(next.dataset.year, next.dataset.month);
+        } else if (diffX > 0 && prev) {
+            loadMonth(prev.dataset.year, prev.dataset.month);
         }
     }, { passive: true });
+
+    attachButtons();
 })();
 </script>
 {% endblock %}

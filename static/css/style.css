@@ -750,3 +750,77 @@ body.dog-theme {
         min-height: 130px;
     }
 }
+
+
+/* v10 AJAX calendar swipe */
+.calendar-loading {
+    opacity: .72;
+    pointer-events: none;
+    transition: opacity .15s ease;
+}
+
+
+/* v10.1 login screen update */
+.login-dog-screen {
+    background: #090807 url("/static/img/dogs-background.png") center center / cover fixed no-repeat;
+}
+
+.themed-login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+}
+
+.login-theme-card {
+    background: rgba(12, 10, 7, .76);
+    border: 1px solid rgba(255,255,255,.18);
+    box-shadow: 0 20px 60px rgba(0,0,0,.50);
+    backdrop-filter: blur(12px);
+    border-radius: 22px;
+    padding: 2rem;
+    color: #fff;
+}
+
+.login-logo {
+    font-size: 3rem;
+    line-height: 1;
+    margin-bottom: .5rem;
+}
+
+.login-title {
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    margin: 0;
+}
+
+.login-subtitle {
+    color: rgba(255,255,255,.72);
+    margin-top: .35rem;
+}
+
+.login-theme-card .form-label {
+    color: rgba(255,255,255,.86);
+}
+
+.login-theme-card .form-control {
+    background: rgba(255,255,255,.92);
+    border: 1px solid rgba(255,255,255,.30);
+}
+
+.login-theme-card .btn-warning {
+    background: #ff9f1a;
+    border-color: #ff9f1a;
+    color: #111;
+}
+
+@media (max-width: 768px) {
+    .login-theme-card {
+        padding: 1.35rem;
+    }
+
+    .themed-login-page {
+        align-items: flex-end;
+        padding-bottom: 2rem;
+    }
+}
