@@ -181,6 +181,63 @@ def inject_globals():
 
 
 
+
+@app.route("/search")
+@login_required
+def search_page():
+    search = request.args.get("q", "").strip()
+    results = {
+        "events": [],
+        "shopping": [],
+        "todos": [],
+        "notices": []
+    }
+
+    if search:
+        like = f"%{search}%"
+        conn = get_db()
+
+        results["events"] = conn.execute("""
+            SELECT e.*, u.name AS user_name
+            FROM events e
+            LEFT JOIN users u ON e.created_by = u.id
+            WHERE e.title LIKE ? OR e.location LIKE ? OR e.description LIKE ?
+            ORDER BY e.event_date, e.event_time
+            LIMIT 50
+        """, (like, like, like)).fetchall()
+
+        results["shopping"] = conn.execute("""
+            SELECT s.*, u.name AS user_name
+            FROM shopping_items s
+            LEFT JOIN users u ON s.added_by = u.id
+            WHERE s.item LIKE ? OR s.quantity LIKE ? OR s.category LIKE ?
+            ORDER BY s.is_done, s.category, s.created_at DESC
+            LIMIT 50
+        """, (like, like, like)).fetchall()
+
+        results["todos"] = conn.execute("""
+            SELECT t.*, ru.name AS responsible_name, cu.name AS creator_name
+            FROM todos t
+            LEFT JOIN users ru ON t.responsible_user = ru.id
+            LEFT JOIN users cu ON t.created_by = cu.id
+            WHERE t.task LIKE ? OR t.priority LIKE ? OR t.status LIKE ? OR t.repeat_type LIKE ?
+            ORDER BY t.is_done, t.due_date IS NULL, t.due_date
+            LIMIT 50
+        """, (like, like, like, like)).fetchall()
+
+        results["notices"] = conn.execute("""
+            SELECT n.*, u.name AS user_name
+            FROM notices n
+            LEFT JOIN users u ON n.created_by = u.id
+            WHERE n.title LIKE ? OR n.message LIKE ?
+            ORDER BY n.created_at DESC
+            LIMIT 50
+        """, (like, like)).fetchall()
+
+        conn.close()
+
+    return render_template("search.html", search=search, results=results)
+
 @app.route("/offline")
 def offline():
     return render_template("offline.html")
@@ -422,32 +479,18 @@ def calendar_page():
             conn.commit()
             flash("Event added.", "success")
 
-    search = request.args.get("search", "").strip()
-    user_filter = request.args.get("user", "").strip()
-
-    query = """
+    events = conn.execute("""
         SELECT e.*, u.name AS user_name, u.color AS user_color,
                COUNT(c.id) AS comment_count
         FROM events e
         LEFT JOIN users u ON e.created_by = u.id
         LEFT JOIN event_comments c ON c.event_id = e.id
-        WHERE 1 = 1
-    """
-    params = []
-
-    if search:
-        query += " AND (e.title LIKE ? OR e.location LIKE ? OR e.description LIKE ?)"
-        params.extend([f"%{search}%", f"%{search}%", f"%{search}%"])
-
-    if user_filter:
-        query += " AND e.created_by = ?"
-        params.append(user_filter)
-
-    query += " GROUP BY e.id ORDER BY e.event_date, e.event_time"
-    events = conn.execute(query, params).fetchall()
+        GROUP BY e.id
+        ORDER BY e.event_date, e.event_time
+    """).fetchall()
 
     conn.close()
-    return render_template("calendar.html", events=events, search=search, user_filter=user_filter)
+    return render_template("calendar.html", events=events)
 
 
 @app.route("/event/<int:event_id>", methods=["GET", "POST"])
@@ -551,35 +594,14 @@ def shopping_page():
             conn.commit()
             flash("Shopping item added.", "success")
 
-    search = request.args.get("search", "").strip()
-    category_filter = request.args.get("category", "").strip()
-    status_filter = request.args.get("status", "open").strip()
-
-    query = """
+    items = conn.execute("""
         SELECT s.*, u.name AS user_name
         FROM shopping_items s
         LEFT JOIN users u ON s.added_by = u.id
-        WHERE 1 = 1
-    """
-    params = []
-
-    if search:
-        query += " AND (s.item LIKE ? OR s.quantity LIKE ?)"
-        params.extend([f"%{search}%", f"%{search}%"])
-
-    if category_filter:
-        query += " AND s.category = ?"
-        params.append(category_filter)
-
-    if status_filter == "open":
-        query += " AND s.is_done = 0"
-    elif status_filter == "done":
-        query += " AND s.is_done = 1"
-
-    query += " ORDER BY s.is_done, s.category, s.created_at DESC"
-    items = conn.execute(query, params).fetchall()
+        ORDER BY s.is_done, s.category, s.created_at DESC
+    """).fetchall()
     conn.close()
-    return render_template("shopping.html", items=items, search=search, category_filter=category_filter, status_filter=status_filter)
+    return render_template("shopping.html", items=items)
 
 
 @app.route("/shopping/<int:item_id>/toggle", methods=["POST"])
@@ -636,55 +658,18 @@ def todo_page():
             conn.commit()
             flash("To-do added.", "success")
 
-    search = request.args.get("search", "").strip()
-    status_filter = request.args.get("status", "open").strip()
-    user_filter = request.args.get("user", "").strip()
-    priority_filter = request.args.get("priority", "").strip()
-
-    query = """
+    todos = conn.execute("""
         SELECT t.*, ru.name AS responsible_name, cu.name AS creator_name
         FROM todos t
         LEFT JOIN users ru ON t.responsible_user = ru.id
         LEFT JOIN users cu ON t.created_by = cu.id
-        WHERE 1 = 1
-    """
-    params = []
-
-    if search:
-        query += " AND t.task LIKE ?"
-        params.append(f"%{search}%")
-
-    if status_filter == "open":
-        query += " AND t.is_done = 0"
-    elif status_filter in ["Pending", "In Progress", "Done"]:
-        query += " AND t.status = ?"
-        params.append(status_filter)
-
-    if user_filter:
-        query += " AND t.responsible_user = ?"
-        params.append(user_filter)
-
-    if priority_filter:
-        query += " AND t.priority = ?"
-        params.append(priority_filter)
-
-    query += """
         ORDER BY t.is_done,
             CASE t.priority WHEN 'High' THEN 1 WHEN 'Normal' THEN 2 ELSE 3 END,
             t.due_date IS NULL,
             t.due_date
-    """
-
-    todos = conn.execute(query, params).fetchall()
+    """).fetchall()
     conn.close()
-    return render_template(
-        "todo.html",
-        todos=todos,
-        search=search,
-        status_filter=status_filter,
-        user_filter=user_filter,
-        priority_filter=priority_filter
-    )
+    return render_template("todo.html", todos=todos)
 
 
 @app.route("/todo/<int:todo_id>/toggle", methods=["POST"])

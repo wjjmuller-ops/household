@@ -137,3 +137,26 @@ Important:
 - Local testing works on `http://127.0.0.1:5000`.
 - Phone install from another device requires HTTPS, so deploy to Render or another HTTPS host.
 - This version uses app-open reminder checks. Full closed-app push notifications require a push server.
+
+
+## v7 Adjustments
+
+Requested changes:
+- Removed search/filter bars from individual pages
+- Added one central Search page
+- Removed Phase 2 and Notifications page from navigation
+- Removed overdue tracker from dashboard summary
+- Moved Notice Board to the top of the dashboard
+- Added swipe left/right on the main calendar to move between months
+
+
+## v8 Dog Background Theme
+
+Added:
+- Uploaded dog image as app background
+- Dark/gold dashboard styling
+- Hero section
+- Notice board glass panel at top
+- Quick dashboard tiles
+- Themed calendar cards
+- Mobile responsive styling

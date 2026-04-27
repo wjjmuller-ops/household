@@ -2,46 +2,6 @@
 {% block content %}
 <h1 class="page-title">To-do List</h1>
 
-<div class="filter-card">
-    <form method="get" class="row g-2 align-items-end">
-        <div class="col-md-3">
-            <label class="form-label">Search</label>
-            <input name="search" class="form-control" value="{{ search or '' }}" placeholder="Search tasks">
-        </div>
-        <div class="col-md-2">
-            <label class="form-label">Status</label>
-            <select name="status" class="form-select">
-                <option value="open" {% if status_filter == "open" %}selected{% endif %}>Open</option>
-                <option {% if status_filter == "Pending" %}selected{% endif %}>Pending</option>
-                <option {% if status_filter == "In Progress" %}selected{% endif %}>In Progress</option>
-                <option {% if status_filter == "Done" %}selected{% endif %}>Done</option>
-                <option value="all" {% if status_filter == "all" %}selected{% endif %}>All</option>
-            </select>
-        </div>
-        <div class="col-md-3">
-            <label class="form-label">Responsible</label>
-            <select name="user" class="form-select">
-                <option value="">All users</option>
-                {% for user in users %}
-                    <option value="{{ user.id }}" {% if user_filter|string == user.id|string %}selected{% endif %}>{{ user.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-2">
-            <label class="form-label">Priority</label>
-            <select name="priority" class="form-select">
-                <option value="">All</option>
-                {% for pr in ["High", "Normal", "Low"] %}
-                    <option {% if priority_filter == pr %}selected{% endif %}>{{ pr }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-2">
-            <button class="btn btn-primary w-100">Filter</button>
-        </div>
-    </form>
-</div>
-
 <div class="row g-3">
     <div class="col-lg-5">
         <div class="card p-3">

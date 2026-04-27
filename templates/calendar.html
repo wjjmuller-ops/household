@@ -2,27 +2,6 @@
 {% block content %}
 <h1 class="page-title">Events</h1>
 
-<div class="filter-card">
-    <form method="get" class="row g-2 align-items-end">
-        <div class="col-md-6">
-            <label class="form-label">Search</label>
-            <input name="search" class="form-control" value="{{ search or '' }}" placeholder="Search events, locations, notes">
-        </div>
-        <div class="col-md-4">
-            <label class="form-label">Created by</label>
-            <select name="user" class="form-select">
-                <option value="">All users</option>
-                {% for user in users %}
-                    <option value="{{ user.id }}" {% if user_filter|string == user.id|string %}selected{% endif %}>{{ user.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-2">
-            <button class="btn btn-primary w-100">Filter</button>
-        </div>
-    </form>
-</div>
-
 <div class="row g-3">
     <div class="col-lg-5">
         <div class="card p-3">

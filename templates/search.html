@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="page-title">Search</h1>
+
+<div class="card p-3 mb-3">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-10">
+            <label class="form-label">Search household app</label>
+            <input name="q" class="form-control" value="{{ search or '' }}" placeholder="Search events, shopping, tasks and notices" autofocus>
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-primary w-100">Search</button>
+        </div>
+    </form>
+</div>
+
+{% if search %}
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="card p-3">
+            <h4>Events</h4>
+            {% for event in results.events %}
+                <div class="border-bottom py-2 compact-list-item">
+                    <strong><a href="{{ url_for('event_detail', event_id=event.id) }}">{{ event.title }}</a></strong><br>
+                    <span class="small-muted">{{ event.event_date }} {{ event.event_time or "" }} · {{ event.user_name or "Unknown" }}</span>
+                    {% if event.location %}<br><span class="small-muted">{{ event.location }}</span>{% endif %}
+                </div>
+            {% else %}
+                <p class="text-muted">No events found.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card p-3">
+            <h4>Shopping</h4>
+            {% for item in results.shopping %}
+                <div class="border-bottom py-2 compact-list-item">
+                    <strong>{{ item.item }}</strong>
+                    {% if item.quantity %}<span class="text-muted">({{ item.quantity }})</span>{% endif %}
+                    <br><span class="small-muted">{{ item.category or "General" }} · {{ "Bought" if item.is_done else "Open" }} · {{ item.user_name or "Unknown" }}</span>
+                </div>
+            {% else %}
+                <p class="text-muted">No shopping items found.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card p-3">
+            <h4>To-do</h4>
+            {% for todo in results.todos %}
+                <div class="border-bottom py-2 compact-list-item">
+                    <strong>{{ todo.task }}</strong><br>
+                    <span class="small-muted">{{ todo.status or "Pending" }} · {{ todo.priority }} · {{ todo.responsible_name or "Unassigned" }}</span>
+                    {% if todo.due_date %}<br><span class="small-muted">Due: {{ todo.due_date }}</span>{% endif %}
+                </div>
+            {% else %}
+                <p class="text-muted">No tasks found.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card p-3">
+            <h4>Notices</h4>
+            {% for notice in results.notices %}
+                <div class="border-bottom py-2 compact-list-item">
+                    <strong>{{ notice.title }}</strong><br>
+                    <span>{{ notice.message }}</span><br>
+                    <span class="small-muted">{{ notice.user_name or "Unknown" }} · {{ notice.created_at }}</span>
+                </div>
+            {% else %}
+                <p class="text-muted">No notices found.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% else %}
+<p class="text-muted">Type something above to search the full household app.</p>
+{% endif %}
+{% endblock %}
