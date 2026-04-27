@@ -211,3 +211,10 @@ Added:
 - Local testing still uses `household.db`
 - Optional `DATABASE_PATH` environment variable support
 - Added `RENDER_DISK_SETUP.md`
+
+
+## v10.4 Calendar Click Fix
+
+Fixed:
+- Main calendar date clicks now open Add Event page with the clicked date selected
+- AJAX calendar month partial now uses the correct add-event date link

@@ -25,7 +25,7 @@
                 {% if day.month != month %}outside-month{% endif %}
                 {% if selected_date == day_key %}selected{% endif %}
                 {% if day == today %}today{% endif %}"
-               href="{{ url_for('dashboard', year=year, month=month, date=day_key) }}">
+               href="{{ url_for('calendar_page', date=day_key) }}">
                 <div class="d-flex justify-content-between">
                     <strong>{{ day.day }}</strong>
                     {% if day == today %}<span class="badge text-bg-warning">Today</span>{% endif %}

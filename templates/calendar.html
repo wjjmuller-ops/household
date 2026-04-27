@@ -15,6 +15,9 @@
                     <div class="col-md-7 mb-3">
                         <label class="form-label">Date</label>
                         <input name="event_date" type="date" class="form-control" value="{{ prefill_date or '' }}" required>
+                        {% if prefill_date %}
+                            <div class="form-text text-warning">Date selected from main calendar.</div>
+                        {% endif %}
                     </div>
                     <div class="col-md-5 mb-3">
                         <label class="form-label">Time</label>
