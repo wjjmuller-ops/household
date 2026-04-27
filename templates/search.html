@@ -38,7 +38,7 @@
                 <div class="border-bottom py-2 compact-list-item">
                     <strong>{{ item.item }}</strong>
                     {% if item.quantity %}<span class="text-muted">({{ item.quantity }})</span>{% endif %}
-                    <br><span class="small-muted">{{ item.category or "General" }} · {{ "Bought" if item.is_done else "Open" }} · {{ item.user_name or "Unknown" }}</span>
+                    <br><span class="small-muted">{{ item.category or "Other" }} · {{ "Bought" if item.is_done else "Open" }} · {{ item.user_name or "Unknown" }}</span>
                 </div>
             {% else %}
                 <p class="text-muted">No shopping items found.</p>

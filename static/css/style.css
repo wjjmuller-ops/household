@@ -824,3 +824,17 @@ body.dog-theme {
         padding-bottom: 2rem;
     }
 }
+
+
+/* v10.2 calendar click + category updates */
+.theme-calendar-day {
+    cursor: pointer;
+}
+
+.theme-calendar-day:hover::after {
+    content: "Add event";
+    display: block;
+    margin-top: 2px;
+    font-size: .65rem;
+    color: #ffcf75;
+}

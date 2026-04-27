@@ -15,8 +15,8 @@
         <div class="mb-3">
             <label class="form-label">Category</label>
             <select name="category" class="form-select">
-                {% for cat in ["General", "Food", "Cleaning", "Toiletries", "Hardware", "Other"] %}
-                    <option {% if (item.category or "General") == cat %}selected{% endif %}>{{ cat }}</option>
+                {% for cat in ["Groceries", "Pharmacy", "Hardware", "Animals", "TAKEALOT", "Wishlist", "Market", "Other"] %}
+                    <option {% if (item.category or "Other") == cat %}selected{% endif %}>{{ cat }}</option>
                 {% endfor %}
             </select>
         </div>

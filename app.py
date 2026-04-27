@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, jsonify
 import sqlite3
 from pathlib import Path
@@ -8,7 +9,7 @@ from functools import wraps
 
 app = Flask(__name__)
 app.secret_key = "change-this-secret-key"
-DATABASE = Path("household.db")
+DATABASE = Path(os.environ.get("DATABASE_PATH", "/data/household.db" if Path("/data").exists() else "household.db"))
 
 
 
@@ -23,6 +24,8 @@ def date_dmy(value):
 
 
 def get_db():
+    if DATABASE.parent != Path("."):
+        DATABASE.parent.mkdir(parents=True, exist_ok=True)
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row
     return conn
@@ -501,7 +504,7 @@ def calendar_page():
     """).fetchall()
 
     conn.close()
-    return render_template("calendar.html", events=events)
+    return render_template("calendar.html", events=events, prefill_date=request.args.get("date", ""))
 
 
 @app.route("/event/<int:event_id>", methods=["GET", "POST"])

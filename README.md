@@ -186,3 +186,28 @@ Changes:
 - Changed first default login:
   - Username: Willem
   - Password: 13424@wmu
+
+
+## v10.2 Calendar Click + Shopping Categories
+
+Changes:
+- Removed Selected Date side panel
+- Clicking a date on the main calendar opens Add Event with that date selected
+- Updated shopping categories:
+  - Groceries
+  - Pharmacy
+  - Hardware
+  - Animals
+  - TAKEALOT
+  - Wishlist
+  - Market
+  - Other
+
+
+## v10.3 Render Disk Support
+
+Added:
+- SQLite database now automatically uses `/data/household.db` when a Render disk is mounted
+- Local testing still uses `household.db`
+- Optional `DATABASE_PATH` environment variable support
+- Added `RENDER_DISK_SETUP.md`

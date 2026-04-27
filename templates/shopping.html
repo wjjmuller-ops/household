@@ -18,11 +18,13 @@
                 <div class="mb-3">
                     <label class="form-label">Category</label>
                     <select name="category" class="form-select">
-                        <option>General</option>
-                        <option>Food</option>
-                        <option>Cleaning</option>
-                        <option>Toiletries</option>
+                        <option>Groceries</option>
+                        <option>Pharmacy</option>
                         <option>Hardware</option>
+                        <option>Animals</option>
+                        <option>TAKEALOT</option>
+                        <option>Wishlist</option>
+                        <option>Market</option>
                         <option>Other</option>
                     </select>
                 </div>
@@ -39,7 +41,7 @@
                     <div class="{% if item.is_done %}done{% endif %}">
                         <strong>{{ item.item }}</strong>
                         {% if item.quantity %}<span class="text-muted">({{ item.quantity }})</span>{% endif %}
-                        <br><span class="small-muted">{{ item.category or "General" }} · Added by {{ item.user_name or "Unknown" }}</span>
+                        <br><span class="small-muted">{{ item.category or "Other" }} · Added by {{ item.user_name or "Unknown" }}</span>
                     </div>
                     <div class="d-flex gap-2">
                         <form method="post" action="{{ url_for('toggle_shopping', item_id=item.id) }}">
