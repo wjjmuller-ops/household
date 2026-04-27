@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Household App Offline</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0d6efd">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+    <style>
+        body { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .offline-card { max-width: 460px; }
+    </style>
+</head>
+<body>
+    <div class="card p-4 offline-card text-center">
+        <h1 class="page-title">You are offline</h1>
+        <p class="text-muted">
+            The Household App is installed, but this page needs a connection to sync the latest calendar, tasks and shopping list.
+        </p>
+        <button class="btn btn-primary" onclick="location.reload()">Try Again</button>
+    </div>
+</body>
+</html>

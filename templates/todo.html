@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="page-title">To-do List</h1>
+
+<div class="filter-card">
+    <form method="get" class="row g-2 align-items-end">
+        <div class="col-md-3">
+            <label class="form-label">Search</label>
+            <input name="search" class="form-control" value="{{ search or '' }}" placeholder="Search tasks">
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-select">
+                <option value="open" {% if status_filter == "open" %}selected{% endif %}>Open</option>
+                <option {% if status_filter == "Pending" %}selected{% endif %}>Pending</option>
+                <option {% if status_filter == "In Progress" %}selected{% endif %}>In Progress</option>
+                <option {% if status_filter == "Done" %}selected{% endif %}>Done</option>
+                <option value="all" {% if status_filter == "all" %}selected{% endif %}>All</option>
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label class="form-label">Responsible</label>
+            <select name="user" class="form-select">
+                <option value="">All users</option>
+                {% for user in users %}
+                    <option value="{{ user.id }}" {% if user_filter|string == user.id|string %}selected{% endif %}>{{ user.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <label class="form-label">Priority</label>
+            <select name="priority" class="form-select">
+                <option value="">All</option>
+                {% for pr in ["High", "Normal", "Low"] %}
+                    <option {% if priority_filter == pr %}selected{% endif %}>{{ pr }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
+            <button class="btn btn-primary w-100">Filter</button>
+        </div>
+    </form>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-5">
+        <div class="card p-3">
+            <h4>Add Task</h4>
+            <form method="post">
+                <div class="mb-3">
+                    <label class="form-label">Task</label>
+                    <input name="task" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Responsible user</label>
+                    <select name="responsible_user" class="form-select">
+                        <option value="">Unassigned</option>
+                        {% for user in users %}
+                            <option value="{{ user.id }}">{{ user.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="row">
+                    <div class="col-md-7 mb-3">
+                        <label class="form-label">Due date</label>
+                        <input name="due_date" type="date" class="form-control">
+                    </div>
+                    <div class="col-md-5 mb-3">
+                        <label class="form-label">Priority</label>
+                        <select name="priority" class="form-select">
+                            <option>Normal</option>
+                            <option>High</option>
+                            <option>Low</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Status</label>
+                    <select name="status" class="form-select">
+                        <option>Pending</option>
+                        <option>In Progress</option>
+                        <option>Done</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Repeat</label>
+                    <select name="repeat_type" class="form-select">
+                        <option>None</option>
+                        <option>Daily</option>
+                        <option>Weekly</option>
+                        <option>Monthly</option>
+                    </select>
+                    <div class="form-text">When a repeating task is marked Done, the next one is created automatically.</div>
+                </div>
+                <button class="btn btn-primary">Add Task</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="card p-3">
+            <h4>Tasks</h4>
+            {% for todo in todos %}
+                <div class="d-flex justify-content-between align-items-center border-bottom py-2 gap-2">
+                    <div class="{% if todo.is_done %}done{% endif %}">
+                        <strong>{{ todo.task }}</strong>
+                        <span class="badge {% if todo.priority == 'High' %}text-bg-danger{% elif todo.priority == 'Low' %}text-bg-secondary{% else %}text-bg-primary{% endif %}">
+                            {{ todo.priority }}
+                        </span>
+                        <span class="badge text-bg-info">{{ todo.status or "Pending" }}</span>
+                        <br>
+                        <span class="small-muted">Responsible: {{ todo.responsible_name or "Unassigned" }}</span>
+                        {% if todo.due_date %}<br><span class="small-muted">Due: {{ todo.due_date }}</span>{% endif %}
+                        {% if todo.repeat_type and todo.repeat_type != "None" %}
+                            <br><span class="badge text-bg-warning">Repeats {{ todo.repeat_type }}</span>
+                        {% endif %}
+                        <br><span class="small-muted">Created by {{ todo.creator_name or "Unknown" }}</span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <form method="post" action="{{ url_for('toggle_todo', todo_id=todo.id) }}">
+                            <button class="btn btn-sm {% if todo.is_done %}btn-outline-secondary{% else %}btn-success{% endif %}">
+                                {% if todo.is_done %}Undo{% else %}Done{% endif %}
+                            </button>
+                        </form>
+                        {% if can_delete(todo.created_by) %}
+                        <a class="btn btn-sm btn-outline-primary" href="{{ url_for('edit_todo', todo_id=todo.id) }}">Edit</a>
+                        <form method="post" action="{{ url_for('delete_todo', todo_id=todo.id) }}" onsubmit="return confirm('Delete this task?')">
+                            <button class="btn btn-sm btn-outline-danger">Delete</button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+            {% else %}
+                <p class="text-muted">No tasks yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

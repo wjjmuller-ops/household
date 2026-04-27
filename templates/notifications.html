@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="page-title">Notifications</h1>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card p-4">
+            <h4>Popup Notifications</h4>
+            <p class="text-muted">
+                Turn on browser notifications to receive reminders while the app is open.
+            </p>
+
+            <button class="btn btn-primary mb-3" onclick="requestNotificationPermission().then(() => location.reload())">
+                Enable Notifications
+            </button>
+
+            <div class="alert alert-info">
+                Notifications will show for:
+                <ul class="mb-0">
+                    <li>Calendar events starting within 30 minutes</li>
+                    <li>Overdue to-do items</li>
+                    <li>Tasks assigned to the logged-in user</li>
+                </ul>
+            </div>
+
+            <button class="btn btn-outline-secondary" onclick="testNotification()">Send Test Notification</button>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="card p-4">
+            <h4>Status</h4>
+            <p id="notification-status" class="fs-5"></p>
+
+            <hr>
+            <h5>Important</h5>
+            <p class="text-muted">
+                This first version checks notifications only while the web app is open in the browser.
+                The next step is a service worker so notifications can work more like a mobile app.
+            </p>
+            <div class="alert alert-warning mb-0">
+                If the test does not show, use <strong>http://127.0.0.1:5000</strong> locally.
+                Install and notifications work best on HTTPS or localhost. For phones, deploy to Render or another HTTPS host.
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function updateNotificationStatus() {
+    const status = document.getElementById("notification-status");
+
+    if (!("Notification" in window)) {
+        status.innerHTML = '<span class="badge text-bg-danger">Not supported</span>';
+        return;
+    }
+
+    if (Notification.permission === "granted") {
+        status.innerHTML = '<span class="badge text-bg-success">Enabled</span>';
+        checkHouseholdNotifications();
+    } else if (Notification.permission === "denied") {
+        status.innerHTML = '<span class="badge text-bg-danger">Blocked</span>';
+    } else {
+        status.innerHTML = '<span class="badge text-bg-warning">Not enabled yet</span>';
+    }
+}
+
+async function testNotification() {
+    const allowed = await requestNotificationPermission();
+
+    if (!allowed) {
+        updateNotificationStatus();
+        return;
+    }
+
+    try {
+        showHouseholdNotification("test-" + Date.now(), "Household notifications working", "Your PWA notification system is working.", "/");
+
+        setTimeout(function () {
+            alert("Test notification was sent. If you did not see it, check Windows Focus Assist / Do Not Disturb or your browser site permissions.");
+        }, 500);
+
+        updateNotificationStatus();
+    } catch (error) {
+        alert("Test notification failed: " + error.message);
+        updateNotificationStatus();
+    }
+}
+
+document.addEventListener("DOMContentLoaded", updateNotificationStatus);
+</script>
+{% endblock %}

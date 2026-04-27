@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="page-title">Edit Task</h1>
+
+<div class="card p-3">
+    <form method="post">
+        <div class="mb-3">
+            <label class="form-label">Task</label>
+            <input name="task" class="form-control" value="{{ todo.task }}" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Responsible user</label>
+            <select name="responsible_user" class="form-select">
+                <option value="">Unassigned</option>
+                {% for user in users_for_form %}
+                    <option value="{{ user.id }}" {% if todo.responsible_user == user.id %}selected{% endif %}>{{ user.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="row">
+            <div class="col-md-7 mb-3">
+                <label class="form-label">Due date</label>
+                <input name="due_date" type="date" class="form-control" value="{{ todo.due_date or '' }}">
+            </div>
+            <div class="col-md-5 mb-3">
+                <label class="form-label">Priority</label>
+                <select name="priority" class="form-select">
+                    {% for pr in ["Normal", "High", "Low"] %}
+                        <option {% if todo.priority == pr %}selected{% endif %}>{{ pr }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-select">
+                {% for st in ["Pending", "In Progress", "Done"] %}
+                    <option {% if (todo.status or "Pending") == st %}selected{% endif %}>{{ st }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Repeat</label>
+            <select name="repeat_type" class="form-select">
+                {% for rt in ["None", "Daily", "Weekly", "Monthly"] %}
+                    <option {% if (todo.repeat_type or "None") == rt %}selected{% endif %}>{{ rt }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button class="btn btn-primary">Save Changes</button>
+        <a href="{{ url_for('todo_page') }}" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

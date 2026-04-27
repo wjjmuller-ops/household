@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="page-title">Phase 2</h1>
+
+<div class="card p-4">
+    <h4>Planned Features</h4>
+    <ul>
+        <li><strong>Web app install:</strong> Manifest and service worker have been added. The app can now be installed from supported browsers.</li>
+        <li><strong>Popup notifications:</strong> Notifications now use the service worker. Full server push can be added later.</li>
+        <li><strong>Mobile polish:</strong> Add app icon, splash screen color, and offline page.</li>
+    </ul>
+
+    <button class="btn btn-primary" onclick="requestNotificationPermission()">Test notification permission</button>
+</div>
+{% endblock %}

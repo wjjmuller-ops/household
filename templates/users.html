@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="page-title">Household Users</h1>
+
+<div class="row g-3">
+    <div class="col-lg-5">
+        <div class="card p-3">
+            <h4>Add User</h4>
+            <form method="post">
+                <div class="mb-3">
+                    <label class="form-label">User name</label>
+                    <input name="name" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input name="password" type="password" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Role</label>
+                    <select name="role" class="form-select">
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">User color</label>
+                    <input name="color" type="color" class="form-control form-control-color" value="#0d6efd">
+                </div>
+                <button class="btn btn-primary">Add User</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-7">
+        <div class="card p-3">
+            <h4>Current Users</h4>
+            {% for user in household_users %}
+                <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <span style="width:16px;height:16px;border-radius:50%;display:inline-block;background:{{ user.color }}"></span>
+                        <strong>{{ user.name }}</strong>
+                        <span class="badge text-bg-{% if user.role == 'admin' %}danger{% else %}secondary{% endif %}">
+                            {{ user.role }}
+                        </span>
+                    </div>
+                    {% if active_user.id != user.id %}
+                    <form method="post" action="{{ url_for('delete_user', user_id=user.id) }}" onsubmit="return confirm('Delete this user?')">
+                        <button class="btn btn-sm btn-outline-danger">Delete</button>
+                    </form>
+                    {% endif %}
+                </div>
+            {% else %}
+                <p class="text-muted">No users yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
