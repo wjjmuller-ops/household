@@ -64,6 +64,25 @@
     </div>
 </div>
 
+<div class="modal fade" id="dayEventsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content day-modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="dayEventsTitle">Day Events</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="dayEventsList"></div>
+            </div>
+            <div class="modal-footer">
+                <a id="dayAddEventBtn" href="#" class="btn btn-warning">Add Event</a>
+                <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <script>
 (function () {
     const calendar = document.getElementById("mainCalendarCard");
@@ -72,6 +91,53 @@
     let startX = 0;
     let startY = 0;
     let isLoading = false;
+
+    function formatDateDMY(value) {
+        if (!value || !value.includes("-")) return value || "";
+        const parts = value.split("-");
+        return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+
+    async function openDayModal(dateValue, addUrl) {
+        const modalEl = document.getElementById("dayEventsModal");
+        const titleEl = document.getElementById("dayEventsTitle");
+        const listEl = document.getElementById("dayEventsList");
+        const addBtn = document.getElementById("dayAddEventBtn");
+
+        if (!modalEl || !titleEl || !listEl || !addBtn) {
+            window.location.href = addUrl;
+            return;
+        }
+
+        titleEl.textContent = `Events for ${formatDateDMY(dateValue)}`;
+        listEl.innerHTML = '<p class="text-light mb-0">Loading...</p>';
+        addBtn.href = addUrl;
+
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+
+        try {
+            const response = await fetch(`/api/day-events?date=${encodeURIComponent(dateValue)}`);
+            const data = await response.json();
+            addBtn.href = data.add_url || addUrl;
+
+            if (!data.events || data.events.length === 0) {
+                listEl.innerHTML = '<p class="text-light mb-0">No events for this date.</p>';
+                return;
+            }
+
+            listEl.innerHTML = data.events.map(event => `
+                <div class="day-modal-event">
+                    <strong><a href="${event.url}">${event.title}</a></strong>
+                    <div class="small-muted">${event.time} · ${event.user}</div>
+                    ${event.location ? `<div class="small-muted">${event.location}</div>` : ""}
+                    ${event.description ? `<p class="mb-0 mt-1">${event.description}</p>` : ""}
+                </div>
+            `).join("");
+        } catch (error) {
+            listEl.innerHTML = '<p class="text-warning mb-0">Could not load events.</p>';
+        }
+    }
 
     async function loadMonth(year, month) {
         if (isLoading) return;
@@ -117,6 +183,14 @@
             });
         }
     }
+
+    calendar.addEventListener("click", function(event) {
+        const dayLink = event.target.closest("[data-calendar-date]");
+        if (!dayLink) return;
+
+        event.preventDefault();
+        openDayModal(dayLink.dataset.calendarDate, dayLink.href);
+    });
 
     calendar.addEventListener("touchstart", function (event) {
         if (!event.touches.length) return;

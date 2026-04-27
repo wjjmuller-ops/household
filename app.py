@@ -2,13 +2,14 @@ import os
 from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, jsonify
 import sqlite3
 from pathlib import Path
-from datetime import datetime, date, timedelta
+from datetime import datetime, date, timedelta, timedelta
 import calendar
 from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 
 app = Flask(__name__)
 app.secret_key = "change-this-secret-key"
+app.permanent_session_lifetime = timedelta(days=30)
 DATABASE = Path(os.environ.get("DATABASE_PATH", "/data/household.db" if Path("/data").exists() else "household.db"))
 
 
@@ -267,6 +268,7 @@ def login():
         conn.close()
 
         if user and user["password_hash"] and check_password_hash(user["password_hash"], password):
+            session.permanent = request.form.get("stay_logged_in") == "on"
             session["user_id"] = user["id"]
             flash(f"Welcome, {user['name']}.", "success")
             return redirect(url_for("dashboard"))
@@ -757,6 +759,41 @@ def notifications_page():
     return render_template("notifications.html")
 
 
+
+
+@app.route("/api/day-events")
+@login_required
+def api_day_events():
+    event_date = request.args.get("date", "").strip()
+    if not event_date:
+        return jsonify({"events": []})
+
+    conn = get_db()
+    events = conn.execute("""
+        SELECT e.*, u.name AS user_name
+        FROM events e
+        LEFT JOIN users u ON e.created_by = u.id
+        WHERE e.event_date = ?
+        ORDER BY e.event_time
+    """, (event_date,)).fetchall()
+    conn.close()
+
+    return jsonify({
+        "date": event_date,
+        "events": [
+            {
+                "id": event["id"],
+                "title": event["title"],
+                "time": event["event_time"] or "No time",
+                "location": event["location"] or "",
+                "description": event["description"] or "",
+                "user": event["user_name"] or "Unknown",
+                "url": url_for("event_detail", event_id=event["id"])
+            }
+            for event in events
+        ],
+        "add_url": url_for("calendar_page", date=event_date)
+    })
 
 @app.route("/api/calendar-month")
 @login_required

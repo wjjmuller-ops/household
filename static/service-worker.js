@@ -1,4 +1,4 @@
-const CACHE_NAME = "household-app-v6";
+const CACHE_NAME = "household-app-v10-7";
 const OFFLINE_URL = "/offline";
 
 const CORE_ASSETS = [
@@ -6,6 +6,7 @@ const CORE_ASSETS = [
   "/offline",
   "/static/css/style.css",
   "/static/manifest.json",
+  "/static/icons/icon-180.png",
   "/static/icons/icon-192.png",
   "/static/icons/icon-512.png"
 ];
@@ -54,8 +55,10 @@ self.addEventListener("message", event => {
     const data = event.data.payload || {};
     self.registration.showNotification(data.title || "Household App", {
       body: data.body || "",
-      icon: "/static/icons/icon-192.png",
-      badge: "/static/icons/icon-192.png",
+      icon: "/static/icons/icon-180.png",
+  "/static/icons/icon-192.png",
+      badge: "/static/icons/icon-180.png",
+  "/static/icons/icon-192.png",
       data: {
         url: data.url || "/"
       }

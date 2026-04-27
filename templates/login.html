@@ -37,10 +37,21 @@
                             <label class="form-label">User name</label>
                             <input name="name" class="form-control" required autofocus>
                         </div>
-                        <div class="mb-3">
+                        <div class="mb-2">
                             <label class="form-label">Password</label>
-                            <input name="password" type="password" class="form-control" required>
+                            <div class="input-group">
+                                <input id="passwordInput" name="password" type="password" class="form-control" required>
+                                <button id="togglePasswordBtn" class="btn btn-outline-warning" type="button">Show</button>
+                            </div>
                         </div>
+
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" name="stay_logged_in" id="stayLoggedIn">
+                            <label class="form-check-label" for="stayLoggedIn">
+                                Stay logged in
+                            </label>
+                        </div>
+
                         <button class="btn btn-warning w-100 fw-bold">Login</button>
                     </form>
                 </div>

@@ -838,3 +838,66 @@ body.dog-theme {
     font-size: .65rem;
     color: #ffcf75;
 }
+
+
+/* v10.5 fixed calendar size */
+.theme-calendar-day {
+    height: 100px;
+    min-height: 100px;
+    max-height: 100px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.calendar-event-pill {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+    font-size: 0.65rem;
+    line-height: 1.1;
+    margin-top: 2px;
+}
+
+@media (max-width: 768px) {
+    .theme-calendar-day {
+        height: 75px;
+        min-height: 75px;
+        max-height: 75px;
+    }
+}
+
+
+/* v10.6 login + calendar modal */
+.day-modal-content {
+    background: rgba(12, 10, 7, .94);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,.18);
+    border-radius: 18px;
+    box-shadow: 0 20px 70px rgba(0,0,0,.55);
+}
+
+.day-modal-event {
+    border-bottom: 1px solid rgba(255,255,255,.14);
+    padding: .65rem 0;
+}
+
+.day-modal-event:last-child {
+    border-bottom: none;
+}
+
+.day-modal-event a {
+    color: #ffb443;
+}
+
+.login-theme-card .form-check-label {
+    color: rgba(255,255,255,.78);
+}
+
+.login-theme-card .input-group .btn {
+    border-color: #ff9f1a;
+    color: #ff9f1a;
+}

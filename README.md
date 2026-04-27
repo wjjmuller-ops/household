@@ -218,3 +218,22 @@ Added:
 Fixed:
 - Main calendar date clicks now open Add Event page with the clicked date selected
 - AJAX calendar month partial now uses the correct add-event date link
+
+
+## v10.6 Login + Calendar Modal
+
+Added:
+- Calendar date click opens popup/modal with all events for that date
+- Add Event button inside the popup
+- Stay logged in checkbox on login
+- Show/Hide password button on login
+
+
+## v10.7 Custom App Icon
+
+Added:
+- New Household Hub steampunk dog app icon
+- Updated PWA icons: 180, 192, 256, 384, 512
+- Updated manifest icon list
+- Updated Apple touch icon
+- Bumped service worker cache so phones receive the new icon
